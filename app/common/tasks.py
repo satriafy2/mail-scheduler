@@ -31,7 +31,6 @@ class EmailTask:
         )
 
     def send_email(self, email_id):
-        # need to be tested
         with scheduler.app.app_context():
             email_ctx = Email.query.filter_by(event_id=email_id).first()
             msg = Message(
