@@ -1,20 +1,15 @@
-from app.config import BaseConfig as config
 from app.db.database import db
 from app.db.model import Task
-from apscheduler.schedulers.background import BackgroundScheduler
-from flask import current_app
+from app.extension.mail import mail
+from app.extension.scheduler import scheduler
+
 from flask_mail import Message
-
+from smtplib import SMTPException
 import uuid
-
-scheduler = BackgroundScheduler(
-    jobstores=config.SCHEDULER_JOBSTORE,
-    timezone=config.SCHEDULER_TZ
-)
 
 
 class EmailTask:
-    def __init__(self, email_context) -> None:
+    def __init__(self, email_context, app=None) -> None:
         self.email_context = email_context
 
     def schedule_email(self):
@@ -28,25 +23,28 @@ class EmailTask:
         self.email_context.task = task
 
         scheduler.add_job(
-            self.send_email,
-            id=scheduler_id,
+            func=self.send_email,
             trigger='date',
             run_date=self.email_context.timestamp,
+            id=scheduler_id,
             misfire_grace_time=5*60
         )
 
     def send_email(self):
         # need to be tested
-        msg = Message(
-            subject=self.email_context.email_subject,
-            body=self.email_context.email_content,
-            sender='test_email_bos@mailtrap.io',
-            recipients=[self.email_context.recipient.email]
-        )
+        with scheduler.app.app_context():
+            msg = Message(
+                subject=self.email_context.email_subject,
+                body=self.email_context.email_content,
+                sender='test_email_bos@mailtrap.io',
+                recipients=[self.email_context.recipient.email]
+            )
 
-        from app import mail        
-        with current_app.app_context():
-            mail.send(msg)
+            try:
+                mail.send(msg)
+                self.email_context.task.status = 'SENT'
+            except SMTPException as e:
+                print(e, flush=True)
+                self.email_context.task.status = 'ERROR'
 
-        self.email_context.task.status = 'SENT'
-        db.session.commit()
+            db.session.commit()

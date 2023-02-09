@@ -11,8 +11,8 @@ class BaseConfig:
     FLASK_ENV = environ.get('FLASK_ENV', 'development')
     SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URI')
 
-    SCHEDULER_TZ = environ.get('SCHEDULER_TZ', 'Asia/Singapore')
-    SCHEDULER_JOBSTORE = {
+    SCHEDULER_TIMEZONE = environ.get('SCHEDULER_TZ', 'Asia/Singapore')
+    SCHEDULER_JOBSTORES = {
         'default': SQLAlchemyJobStore(url=SQLALCHEMY_DATABASE_URI)
     }
 

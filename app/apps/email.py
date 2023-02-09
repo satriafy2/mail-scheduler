@@ -1,12 +1,14 @@
-from flask import Blueprint, Response, request
-from app.common.tasks import schedule_email
+from flask import Blueprint
+from flask import request
+
+from app.common.tasks import EmailTask
 from app.db.database import db
 from app.db.model import Email, Recipient
 
 bp = Blueprint('email', __name__)
 
 
-@bp.route('/save_emails', methods=('POST', 'GET'))
+@bp.route('/save_emails', methods=('POST'))
 def save_email():
     if request.method == 'POST':
         data = request.json
@@ -29,13 +31,7 @@ def save_email():
         )
         db.session.add(email)
 
-        schedule_email(email_context=email)
+        EmailTask(email_context=email).schedule_email()
         db.session.commit()
 
         return 'Success', 200
-
-    data = {
-        'message': 'success dek',
-        'kacatu': 'kacauu'
-    }
-    return Response(data, status=200, mimetype='application/json')
