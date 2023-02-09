@@ -2,14 +2,12 @@ from app.db.database import db
 from app.db.model import Task
 from app.extension.mail import mail
 from app.extension.scheduler import scheduler
-
-from flask_mail import Message
-from smtplib import SMTPException
+from flask_mail import Message 
 import uuid
 
 
 class EmailTask:
-    def __init__(self, email_context, app=None) -> None:
+    def __init__(self, email_context):
         self.email_context = email_context
 
     def schedule_email(self):
@@ -43,7 +41,7 @@ class EmailTask:
             try:
                 mail.send(msg)
                 self.email_context.task.status = 'SENT'
-            except SMTPException as e:
+            except Exception as e:
                 print(e, flush=True)
                 self.email_context.task.status = 'ERROR'
 
