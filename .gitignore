@@ -3,3 +3,4 @@ __pycache__
 .env
 tmp/
 rldr.py
+.pytest_cache/

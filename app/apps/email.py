@@ -13,6 +13,7 @@ bp = Blueprint('email', __name__)
 def save_email():
     if request.method == 'POST':
         data = request.json
+        print(data, flush=True)
         if not data:
             return 'Error', 400
 

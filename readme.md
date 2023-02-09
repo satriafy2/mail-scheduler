@@ -15,7 +15,11 @@ pip install -r requirements.txt
 ```
 4. Rename `.env.example` to `.env` and adjust it's environment value depends on your machine
 
-5. Go to the root project, and run the app using the following command
+5. Migrate database, run the following command
+```
+flask db upgrade
+```
+6. Go to the root project, and run the app using the following command
 ```
 flask --app app run --host=0.0.0.0
 ```
