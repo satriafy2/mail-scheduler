@@ -1,0 +1,31 @@
+services:
+  db:
+    image: mysql:8.0
+    volumes:
+      - ./data/db:/var/lib/mysql
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user123
+      MYSQL_PASSWORD: user123
+      MYSQL_ROOT_HOST: '%'
+
+  rest:
+    build: .
+    command: flask --app app --debug run --host=0.0.0.0
+    volumes:
+      - .:/flask-email
+    ports:
+      - '5000:5000'
+    dns:
+      - 8.8.8.8
+      - 4.4.4.4
+    environment:
+      - DB_NAME=db_email
+      - DB_USER=user123
+      - DB_PASSWORD=user123
+      - FLASK_DEBUG=1
+    depends_on:
+      - db
+
